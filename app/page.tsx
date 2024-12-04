@@ -1,101 +1,123 @@
-import Image from "next/image";
+"use client";
 
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+type Task = {
+  id: number;
+  title: string;
+  color: string;
+  completed: boolean;
+};
+
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [completedCount, setCompletedCount] = useState<number>(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  useEffect(() => {
+    // Fetch tasks from the back-end API
+    const fetchTasks = async () => {
+      const res = await fetch(`${apiBaseUrl}/api/tasks`);
+      const data = await res.json();
+      setTasks(data);
+      setCompletedCount(data.filter((task: Task) => task.completed).length);
+    };
+
+    fetchTasks();
+  }, []);
+
+  const toggleTaskCompletion = async (id: number, completed: boolean) => {
+    const res = await fetch(`${apiBaseUrl}/api/tasks/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ completed: !completed }),
+    });
+
+    if (res.ok) {
+      setTasks(
+        tasks.map((task) =>
+          task.id === id ? { ...task, completed: !completed } : task
+        )
+      );
+      setCompletedCount((prev) => prev + (completed ? -1 : 1));
+    }
+  };
+
+  const deleteTask = async (id: number) => {
+    const res = await fetch(`${apiBaseUrl}/api/tasks/${id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      setTasks(tasks.filter((task) => task.id !== id));
+      setCompletedCount(
+        (prev) =>
+          prev - (tasks.find((task) => task.id === id)?.completed ? 1 : 0)
+      );
+    }
+  };
+
+  return (
+    <>
+      <div className="w-full mb-6">
+        <Link href="/create">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md w-full">
+            Create Task
+          </button>
+        </Link>
+      </div>
+
+      <div className="mb-4 flex justify-between text-white">
+        <p className="text-lg">Tasks: {tasks.length}</p>
+        <p className="text-lg">
+          Completed: {completedCount} of {tasks.length}
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {tasks.length === 0 ? (
+          <p className="text-gray-500">
+            You don't have any tasks registered yet.
+          </p>
+        ) : (
+          tasks.map((task) => (
+            <div
+              key={task.id}
+              className="flex items-center justify-between py-4 bg-gray-800 text-white rounded-md"
+            >
+              <div className="flex items-center space-x-4">
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => toggleTaskCompletion(task.id, task.completed)}
+                  className="form-checkbox h-5 w-5 text-blue-500"
+                />
+                <span
+                  className={`flex-1 ${
+                    task.completed ? "line-through text-gray-400" : ""
+                  }`}
+                >
+                  {task.title}
+                </span>
+              </div>
+              <div className="space-x-2">
+                <Link href={`/edit/${task.id}`}>
+                  <button className="text-yellow-500">Edit</button>
+                </Link>
+                <button
+                  onClick={() => deleteTask(task.id)}
+                  className="text-red-500"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </>
   );
 }
