@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Todo List App (Front-End)
 
-## Getting Started
+This is the front-end of the Todo List application built with Next.js, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## Requirements
+- Node.js >= 18.x
+- npm >= 8.x
 
-```bash
+## Setup Instructions
+
+### 1. Clone the Repository
+
+Clone the repository to your local machine
+`cd todoapp`
+
+### 2. Install Dependencies
+
+Run the following command to install the required dependencies:
+`npm install`
+
+### 3. Set Up Environment Variables
+
+#### 1. Copy the .env.example file to .env:
+To configure environment variables, you need to copy the example environment file and rename it to .env:
+`cp .env.example .env`
+
+#### 2. Update the Backend URL:
+In the .env file, update the NEXT_PUBLIC_API_BASE_URL with the URL of your deployed back-end API (e.g., Heroku or local back-end URL):
+NEXT_PUBLIC_API_BASE_URL=http://localhost
+Replace http://localhost with the actual URL of your Express.js back-end API.
+
+### 4. Run the Development Server
+
+Start the development server with the following command:
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This will start the app at http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## File Structure
+- pages: Contains the page components for the app.
+- components: Contains reusable components like TaskCard, Form, etc.
+- styles: Contains global styles and Tailwind CSS configuration.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Troubleshooting
+- Environment Variables: Ensure that the .env file is correctly configured, especially the NEXT_PUBLIC_API_BASE_URL pointing to the correct back-end URL.
 
-## Learn More
+## Contributing
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Feel free to open issues or submit pull requests for improvements and bug fixes.
